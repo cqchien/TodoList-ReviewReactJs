@@ -4,7 +4,14 @@ import TasksSorting from "../TasksSorting/TasksSorting";
 
 class TasksTable extends Component {
   render() {
-    const { isDisplayForm, onToggleForm, tasks } = this.props;
+    const {
+      isDisplayForm,
+      onToggleForm,
+      tasks,
+      onUpdateStatus,
+      removeTask,
+    } = this.props;
+
     return (
       <div
         className={
@@ -60,15 +67,16 @@ class TasksTable extends Component {
                       <td>{index + 1}</td>
                       <td>{task.name}</td>
                       <td className="text-center">
-                        <span
+                        <button
                           className={
                             task.status === "ACTION"
-                              ? "label label-success"
-                              : "label label-warning"
+                              ? "btn btn-sm btn-success"
+                              : "btn btn-sm btn-warning"
                           }
+                          onClick={() => onUpdateStatus(task)}
                         >
                           {task.status === "ACTION" ? "Kich Hoat" : "An"}
-                        </span>
+                        </button>
                       </td>
                       <td className="text-center">
                         <button type="button" className="btn btn-warning">
@@ -76,7 +84,11 @@ class TasksTable extends Component {
                           Sửa
                         </button>
                         &nbsp;
-                        <button type="button" className="btn btn-danger">
+                        <button
+                          type="button"
+                          className="btn btn-danger"
+                          onClick={() => removeTask(task)}
+                        >
                           <span className="fa fa-trash mr-5" />
                           Xóa
                         </button>

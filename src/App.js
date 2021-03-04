@@ -48,6 +48,33 @@ class App extends Component {
     return Math.floor((1 + Math.random()) * 0x10001).toString(16);
   }
 
+  onUpdateStatus = (task) => {
+    const { tasks } = this.state;
+    const taskIndex = tasks.findIndex((item) => item.id === task.id);
+    if (taskIndex !== -1) {
+      task.status === "ACTION"
+        ? (tasks[taskIndex].status = "HIDE")
+        : (tasks[taskIndex].status = "ACTION");
+      this.setState((state) => ({
+        tasks: state.tasks,
+      }));
+    }
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
+  removeTask = (task) => {
+    const { tasks } = this.state;
+    const taskIndex = tasks.findIndex((item) => item.id === task.id);
+    if (taskIndex !== -1) {
+      tasks.splice(taskIndex, 1);
+      this.setState((state) => ({
+        tasks: state.tasks,
+      }));
+    }
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
   render() {
     const { isDisplayForm, tasks } = this.state;
     return (
@@ -64,6 +91,8 @@ class App extends Component {
             />
           )}
           <TasksTable
+            removeTask={this.removeTask}
+            onUpdateStatus={this.onUpdateStatus}
             tasks={tasks}
             isDisplayForm={isDisplayForm}
             onToggleForm={this.onToggleForm}
