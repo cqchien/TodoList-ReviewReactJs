@@ -3,6 +3,26 @@ import TaskSearching from "../TaskSearching/TaskSearching";
 import TasksSorting from "../TasksSorting/TasksSorting";
 
 class TasksTable extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      filterName: "",
+      filterStatus: "ALL",
+    };
+  }
+
+  onChange = (event) => {
+    const { value, name } = event.target;
+    const { filter } = this.props;
+    filter({
+      filterName: name === "filterName" ? value : this.state.filterName,
+      filterStatus: name === "filterStatus" ? value : this.state.filterStatus,
+    });
+    this.setState({
+      [name]: value,
+    });
+  };
+
   render() {
     const {
       isDisplayForm,
@@ -10,8 +30,10 @@ class TasksTable extends Component {
       tasks,
       onUpdateStatus,
       removeTask,
+      onUpdateTask,
     } = this.props;
 
+    const { filterName, filterStatus } = this.state;
     return (
       <div
         className={
@@ -50,13 +72,24 @@ class TasksTable extends Component {
                 <tr>
                   <td></td>
                   <td>
-                    <input type="text" className="form-control" />
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="filterName"
+                      value={filterName}
+                      onChange={this.onChange}
+                    />
                   </td>
                   <td>
-                    <select className="form-control">
-                      <option value={-1}>Tất Cả</option>
-                      <option value={0}>Ẩn</option>
-                      <option value={1}>Kích Hoạt</option>
+                    <select
+                      className="form-control"
+                      name="filterStatus"
+                      value={filterStatus}
+                      onChange={this.onChange}
+                    >
+                      <option value="ALL">Tất Cả</option>
+                      <option value="HIDE">Ẩn</option>
+                      <option value="ACTION">Kích Hoạt</option>
                     </select>
                   </td>
                   <td />
@@ -79,7 +112,11 @@ class TasksTable extends Component {
                         </button>
                       </td>
                       <td className="text-center">
-                        <button type="button" className="btn btn-warning">
+                        <button
+                          type="button"
+                          className="btn btn-warning"
+                          onClick={() => onUpdateTask(task)}
+                        >
                           <span className="fa fa-pencil mr-5" />
                           Sửa
                         </button>

@@ -8,6 +8,11 @@ class App extends Component {
     this.state = {
       tasks: [],
       isDisplayForm: false,
+      taskUpdated: {
+        id: "",
+        taskName: "",
+        status: "ACTION",
+      },
     };
   }
 
@@ -24,6 +29,11 @@ class App extends Component {
   onToggleForm = () => {
     this.setState((state) => ({
       isDisplayForm: !state.isDisplayForm,
+      taskUpdated: {
+        id: "",
+        taskName: "",
+        status: "ACTION",
+      },
     }));
   };
 
@@ -75,8 +85,67 @@ class App extends Component {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   };
 
+  onUpdateTask = (task) => {
+    this.setState({
+      taskUpdated: task,
+      isDisplayForm: true,
+    });
+  };
+
+  updateTask = (id, taskName, status) => {
+    const { tasks } = this.state;
+    const taskIndex = tasks.findIndex((item) => item.id === id);
+    if (taskIndex !== -1) {
+      const task = {
+        id,
+        name: taskName,
+        status,
+      };
+      tasks[taskIndex] = task;
+      this.setState((state) => ({
+        tasks: state.tasks,
+        taskUpdated: task,
+      }));
+    }
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  };
+
+  filter = ({ filterName, filterStatus }) => {
+    const tasksALl = JSON.parse(localStorage.getItem("tasks"));
+    let tasksFilterName;
+    let tasksFilterStatus;
+
+    if (filterName) {
+      tasksFilterName = tasksALl.filter((task) => {
+        return task.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1;
+      });
+    } else {
+      tasksFilterName = tasksALl;
+    }
+
+    if (filterStatus !== "ALL") {
+      tasksFilterStatus = tasksALl.filter((task) => {
+        return task.status === filterStatus;
+      });
+    } else {
+      tasksFilterStatus = tasksALl;
+    }
+    const newTasks = tasksFilterName.filter((taskInFilterName) => {
+      if (
+        tasksFilterStatus.findIndex(
+          (taskInFilterStatus) => taskInFilterStatus.id === taskInFilterName.id
+        ) !== -1
+      ) {
+        return true;
+      } else return false;
+    });
+    this.setState({
+      tasks: newTasks,
+    });
+  };
+
   render() {
-    const { isDisplayForm, tasks } = this.state;
+    const { isDisplayForm, tasks, taskUpdated } = this.state;
     return (
       <div className="container">
         <div className="text-center">
@@ -86,12 +155,16 @@ class App extends Component {
         <div className="row">
           {isDisplayForm && (
             <TasksForm
+              taskUpdated={taskUpdated}
+              updateTask={this.updateTask}
               addTask={this.addTask}
               onToggleForm={this.onToggleForm}
             />
           )}
           <TasksTable
+            onUpdateTask={this.onUpdateTask}
             removeTask={this.removeTask}
+            filter={this.filter}
             onUpdateStatus={this.onUpdateStatus}
             tasks={tasks}
             isDisplayForm={isDisplayForm}

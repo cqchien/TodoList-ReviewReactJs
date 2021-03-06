@@ -4,9 +4,33 @@ class TasksForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      id: "",
       taskName: "",
       status: "ACTION",
     };
+  }
+
+  componentDidMount() {
+    const { taskUpdated } = this.props;
+
+    if (this.state.id || taskUpdated.id) {
+      this.setState({
+        id: taskUpdated.id,
+        taskName: taskUpdated.name,
+        status: taskUpdated.status,
+      });
+    }
+  }
+
+  componentDidUpdate() {
+    const { taskUpdated } = this.props;
+    if (this.state.id !== taskUpdated.id) {
+      this.setState({
+        id: taskUpdated.id,
+        taskName: taskUpdated.name,
+        status: taskUpdated.status,
+      });
+    }
   }
 
   onChange = (event) => {
@@ -17,22 +41,42 @@ class TasksForm extends Component {
   };
 
   onSubmit = (event) => {
-    const { taskName, status } = this.state;
-    const { addTask } = this.props;
+    const { taskName, status, id } = this.state;
+    const { addTask, taskUpdated, updateTask } = this.props;
 
     event.preventDefault();
-    addTask(taskName, status);
+    taskUpdated.id
+      ? updateTask(id, taskName, status)
+      : addTask(taskName, status);
+
+    this.setState({
+      id: "",
+      taskName: "",
+      status: "ACTION",
+    });
+  };
+
+  onCloseForm = (event) => {
+    event.preventDefault();
+
+    this.setState({
+      id: "",
+      taskName: "",
+      status: "ACTION",
+    });
+
+    this.props.onToggleForm();
   };
 
   render() {
-    const { taskName, status } = this.state;
-    const { onToggleForm } = this.props;
-
+    const { taskName, status, id } = this.state;
     return (
       <div className="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         <div className="panel panel-warning">
           <div className="panel-heading">
-            <h3 className="panel-title">Thêm Công Việc</h3>
+            <h3 className="panel-title">
+              {!id ? "Them Cong Viec" : "Cap Nhat Cong Viec"}
+            </h3>
           </div>
           <div className="panel-body">
             <form onSubmit={this.onSubmit}>
@@ -60,10 +104,10 @@ class TasksForm extends Component {
               <br />
               <div className="text-center">
                 <button type="submit" className="btn btn-warning">
-                  Thêm
+                  {!id ? "Them" : "Cap Nhat"}
                 </button>
                 &nbsp;
-                <button onClick={onToggleForm} className="btn btn-danger">
+                <button onClick={this.onCloseForm} className="btn btn-danger">
                   Hủy Bỏ
                 </button>
               </div>
